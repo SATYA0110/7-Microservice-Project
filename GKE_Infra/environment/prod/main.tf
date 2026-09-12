@@ -7,7 +7,7 @@ module "vpc" {
 }
 
 module "subnet" {
-  source  = "../../modules/subnets"
+  source  = "../../modules/subnet"
   project = var.project_id
   subnet  = var.subnets
   
@@ -39,7 +39,7 @@ module "security_firewall" {
 # --------------------------------------------------------------------------
 # 5. Artifact Registry Module Block
 # --------------------------------------------------------------------------
-module "artifact_registry" {
+module "artifact-registry" {
   source       = "../../modules/artifact_registry"
   project_id   = var.project_id
   project_name = var.project_name
