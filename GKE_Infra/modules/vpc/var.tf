@@ -4,6 +4,6 @@ variable "vpc" {
 }
 
 variable "project" {
-    type = "string"
+    type = string
     description = "name of project under which the vcp will create"
 }
