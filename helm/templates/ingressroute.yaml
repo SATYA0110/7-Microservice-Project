@@ -1,0 +1,87 @@
+yaml{{- if .Values.ingress.enabled -}}
+# =============================================================================
+# Application Ingress Routing (Traefik Custom Resources)
+# -----------------------------------------------------------------------------
+# Routes traffic coming into the Traefik Load Balancer using relative paths.
+# Eliminates external domain dependencies, relying strictly on internal cluster paths.
+# =============================================================================
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: platform-ingress
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: platform-services
+spec:
+  entryPoints:
+    - {{ .Values.ingress.entryPoint }}
+  routes:
+    # --- Auth Service ---
+    - match: PathPrefix(`/api/auth`)
+      kind: Rule
+      priority: 100
+      services:
+        - name: {{ .Values.authService.servicename }}
+          port: {{ .Values.authService.port }}
+
+    # --- Catalog Service ---
+    - match: PathPrefix(`/api/products`) || PathPrefix(`/api/catalog`)
+      kind: Rule
+      priority: 100
+      services:
+        - name: {{ .Values.catalogService.servicename }}
+          port: {{ .Values.catalogService.port }}
+
+    # --- Inventory Service ---
+    - match: PathPrefix(`/api/inventory`)
+      kind: Rule
+      priority: 100
+      services:
+        - name: {{ .Values.inventoryService.servicename }}
+          port: {{ .Values.inventoryService.port }}
+
+    # --- Order Service ---
+    - match: PathPrefix(`/api/orders`)
+      kind: Rule
+      priority: 100
+      services:
+        - name: {{ .Values.orderService.servicename }}
+          port: {{ .Values.orderService.port }}
+
+    # --- Payment Service ---
+    - match: PathPrefix(`/api/payments`)
+      kind: Rule
+      priority: 100
+      services:
+        - name: {{ .Values.paymentService.servicename }}
+          port: {{ .Values.paymentService.port }}
+
+    # --- Notification Service ---
+    - match: PathPrefix(`/api/notifications`)
+      kind: Rule
+      priority: 100
+      services:
+        - name: {{ .Values.notificationService.servicename }}
+          port: {{ .Values.notificationService.port }}
+
+    # --- Analytics Service ---
+    - match: PathPrefix(`/api/analytics`)
+      kind: Rule
+      priority: 100
+      services:
+        - name: {{ .Values.analyticsService.servicename }}
+          port: {{ .Values.analyticsService.port }}
+
+    # --- Frontend Web UI Catch-All (Lowest Priority) ---
+    - match: PathPrefix(`/`)
+      kind: Rule
+      priority: 1
+      services:
+        - name: {{ .Values.frontend.servicename }}
+          port: {{ .Values.frontend.port | default 80 }}
+          
+  {{- if .Values.ingress.tls }}
+  tls:
+    secretName: {{ .Values.ingress.tlsSecretName }}
+  {{- end }}
+{{- end }}

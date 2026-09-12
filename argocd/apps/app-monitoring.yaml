@@ -1,0 +1,148 @@
+# =============================================================================
+# Application: monitoring (kube-prometheus-stack)
+# -----------------------------------------------------------------------------
+# Installs Prometheus + Alertmanager + Grafana + node-exporter + kube-state-metrics
+# from the prometheus-community Helm repo into the `monitoring` namespace.
+#
+# All three UIs (Grafana, Prometheus, Alertmanager) are configured with
+# relative sub-paths so they can be accessed via ClusterIP, port-forwarding,
+# or any domain/IP without breaking asset loading or path prefixes.
+# =============================================================================
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: micro
+
+  source:
+    repoURL: https://github.io
+    chart: kube-prometheus-stack
+    targetRevision: 62.3.0 # pin chart version; bump deliberately
+    helm:
+      values: |
+        fullnameOverride: kube-prometheus
+
+        # ---------------------------------------------------------------
+        # GKE has a MANAGED control plane — etcd, kube-scheduler,
+        # kube-controller-manager, kube-proxy, coredns all run inside
+        # Google's infrastructure and are NOT scrape-able from a node.
+        # The kube-prom-stack chart tries to create Services for them
+        # in kube-system by default; on GKE those services would just
+        # point at endpoints that don't exist. Turn them all off.
+        # ---------------------------------------------------------------
+        kubeEtcd:
+          enabled: false
+        kubeScheduler:
+          enabled: false
+        kubeControllerManager:
+          enabled: false
+        kubeProxy:
+          enabled: false
+        coreDns:
+          enabled: false
+
+        # ---------------------------------------------------------------
+        # Grafana — Configured with a relative path to allow ClusterIP access.
+        # ---------------------------------------------------------------
+        grafana:
+          enabled: true
+          defaultDashboardsEnabled: true
+          ingress:
+            enabled: false
+          
+          # Removed the external domain. Grafana now infers the domain dynamically
+          # based on your request host, while preserving the /grafana/ path.
+          grafana.ini:
+            server:
+              domain: localhost
+              root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana/"
+              serve_from_sub_path: true
+              
+          additionalDataSources:
+            - name: Loki
+              type: loki
+              uid: loki
+              access: proxy
+              url: http://cluster.local
+              isDefault: false
+              jsonData:
+                maxLines: 1000
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+
+        # ---------------------------------------------------------------
+        # Prometheus — Configured with a relative external URL.
+        # ---------------------------------------------------------------
+        prometheus:
+          prometheusSpec:
+            retention: 15d
+            routePrefix: /prometheus
+            # Changed from absolute external URL to relative path
+            externalUrl: /prometheus
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            resources:
+              requests:
+                cpu: 250m
+                memory: 512Mi
+              limits:
+                cpu: "1"
+                memory: 2Gi
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  accessModes: ["ReadWriteOnce"]
+                  resources:
+                    requests:
+                      storage: 20Gi
+
+        # ---------------------------------------------------------------
+        # Alertmanager — Configured with a relative external URL.
+        # ---------------------------------------------------------------
+        alertmanager:
+          enabled: true
+          alertmanagerSpec:
+            routePrefix: /alertmanager
+            # Changed from absolute external URL to relative path
+            externalUrl: /alertmanager
+            resources:
+              requests:
+                cpu: 25m
+                memory: 64Mi
+              limits:
+                cpu: 100m
+                memory: 128Mi
+
+  destination:
+    server: https://default.svc
+    namespace: monitoring
+
+  ignoreDifferences:
+    - group: apps
+      kind: StatefulSet
+      jsonPointers:
+        - /spec/volumeClaimTemplates
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - RespectIgnoreDifferences=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 15s
+        factor: 2
+        maxDuration: 5m
