@@ -3,7 +3,7 @@ variable "vpc" {
     description = "name of vpc"
 }
 
-variable "project" {
+variable "project_id" {
     type = string
     description = "name of project under which the vcp will create"
 }

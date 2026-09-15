@@ -2,7 +2,7 @@
 # Core Project and Environment Context
 # ==========================================================================
 
-project.id   = "project-b072ca81-0008-42cb-81c" # Replace with your real GCP Project ID
+project_id   = "project-b072ca81-0008-42cb-81c" # Replace with your real GCP Project ID
 project_name = "micro"
 environment  = "prod"
 region       = "us-central1"

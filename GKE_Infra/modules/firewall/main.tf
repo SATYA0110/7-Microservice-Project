@@ -2,7 +2,7 @@ resource "google_compute_firewall" "this" {
     for_each = var.firewall
     name = each.key 
     network = google_compute_network.vpc.name
-    project = var.project.id
+    project = var.project_id
 
     priority = lookup(each.value, "priority" , "1000")
     direction = lookup(each.value, "direction" , "ingress")

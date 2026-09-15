@@ -51,7 +51,7 @@ module "artifact-registry" {
 # --------------------------------------------------------------------------
 module "workload_identity" {
   source                   = "../../modules/workload_identity"
-  project_id               = var.project.id
+  project_id               = var.project_id
   project_name             = var.project_name
   environment              = var.environment
   k8s_namespace            = var.k8s_namespace
