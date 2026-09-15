@@ -1,7 +1,7 @@
 resource "google_artifact_registry_repository" "docker_repo" {
     project = var.project_id
     location = var.region
-    repository_id = "${var.environment}-${var.project}-docker_repo"
+    repository_id = "${var.environment}-${var.project}-docker-repo"
     description   = "Production Docker container registry for ${var.project_name} application images."
     format        = "DOCKER"
     mode = "STANDARD_REPOSITORY"
