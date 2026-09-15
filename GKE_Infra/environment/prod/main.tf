@@ -44,7 +44,7 @@ module "firewall" {
 # --------------------------------------------------------------------------
 module "artifact-registry" {
   source        = "../../modules/artifact-registry"
-  project_id   = var.project_id
+  project   = var.project_id
   project_name = var.project_name
   environment  = var.environment
   region       = var.region
