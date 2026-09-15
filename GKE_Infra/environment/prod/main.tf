@@ -2,13 +2,13 @@
 
 module "vpc" {
   source  = "../../modules/vpc"
-  project = var.project_id
+  project_id = var.project_id
   vpc     = "prod-core-vpc"
 }
 
 module "subnet" {
   source  = "../../modules/subnet"
-  project = var.project_id
+  project_id = var.project_id
   subnet  = var.subnets
   
   # Bridges the gap between your two separate folders
@@ -27,7 +27,7 @@ module "gke" {
   # ... rest of your GKE arguments
 }
 
-module "security_firewall" {
+module "firewall" {
   source         = "../../modules/firewall"
   project_id     = var.project_id
   environment    = var.environment
@@ -40,7 +40,7 @@ module "security_firewall" {
 # --------------------------------------------------------------------------
 module "artifact-registry" {
   source        = "../../modules/artifact-registry"
-   project_id   = var.project_id
+  project_id   = var.project_id
   project_name = var.project_name
   environment  = var.environment
   region       = var.region

@@ -6,7 +6,7 @@ resource "google_service_account" "sa" {
 
 resource "google_project_iam_member" "iam" {
     for_each = toset([
-        "roles/storage.objectViewer,"
+        "roles/storage.objectViewer",
         "roles/secretmanager.secretAccessor"
     ])
     project_id = var.project_id

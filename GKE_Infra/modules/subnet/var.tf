@@ -1,9 +1,9 @@
 variable "project_id" {
-    type = "string"
+    type = string
 
 }
 
-variable "subnet" {
+variable "subnets" {
     type = map(object({
         region = string
         cidr = string
