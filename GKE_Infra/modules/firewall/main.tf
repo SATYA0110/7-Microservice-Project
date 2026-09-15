@@ -22,7 +22,7 @@ resource "google_compute_firewall" "this" {
         }
     }
 
-    deynamic "deny" {
+    dynamic "deny" {
         for_each = lookup(each.value, "action", "deny") == "deny" ? [1]:[1]
         content {
             protocol = each.value.protocol
