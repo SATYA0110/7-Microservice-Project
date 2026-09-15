@@ -49,7 +49,7 @@ variable "subnets" {
     })), [])
   }))
   description = "A comprehensive multi-tier network structure detailing regions, primary CIDRs, and GKE sub-allocations."
-  variable "vpc_name" { type = string }
+  
 }
 
 # ==========================================================================
