@@ -20,6 +20,7 @@ module "gke" {
   region       = var.region
   project_name = var.project_id
   environment  = "dev"
+  name   = "my-gke-cluster"
 
 
 
