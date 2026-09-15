@@ -20,7 +20,7 @@ subnets = {
   # Dedicated Node and Pod/Service cluster spacing block
   "gke-tier" = {
     region                   = "us-central1"
-    ip_cidr                  = "10.0.10.0/24" # Node network interface space
+    cidr                  = "10.0.10.0/24" # Node network interface space
     private_ip_google_access = true
     secondary_ranges = [
       {
@@ -37,7 +37,7 @@ subnets = {
   # Isolated Application Data Persistence Space
   "db-tier" = {
     region                   = "us-central1"
-    ip_cidr                  = "10.0.20.0/24"
+    cidr                  = "10.0.20.0/24"
     private_ip_google_access = true
     secondary_ranges         = [] # Empty list since DBs don't require alias IPs
   }
