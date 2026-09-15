@@ -9,7 +9,7 @@ module "vpc" {
 module "subnet" {
   source  = "../../modules/subnet"
   project_id = var.project_id
-  subnet  = var.subnets
+  subnets  = var.subnets
   
   # Bridges the gap between your two separate folders
   vpc_id  = module.vpc.vpc_name
@@ -22,7 +22,7 @@ module "gke" {
 
 
   # Looks up the exact ID from your child subnet resource loop safely
-  subnet_id  = module.subnets.subnet_ids[var.gke_subnet_key]
+  subnet_id  = module.subnet.subnet_ids[var.gke_subnet_key]
   
   # ... rest of your GKE arguments
 }
