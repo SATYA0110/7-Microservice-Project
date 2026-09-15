@@ -34,6 +34,7 @@ module "gke" {
 module "firewall" {
   source         = "../../modules/firewall"
   project_id     = var.project_id
+  project_name  = var.project_name
   environment    = var.environment
   vpc_name       = module.vpc.vpc_name
   firewall_rules = var.firewall_rules
