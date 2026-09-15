@@ -10,8 +10,6 @@ module "subnet" {
   source  = "../../modules/subnet"
   project_id = var.project_id
   subnets  = var.subnets
-  cidr = "10.0.1.0/24" # <-- Make sure this attribute exists
-  # Bridges the gap between your two separate folders
   vpc_name = module.vpc.vpc_name
 }
 
