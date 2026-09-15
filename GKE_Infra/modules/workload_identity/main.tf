@@ -1,7 +1,7 @@
 resource "google_service_account" "sa" {
     account_id = "${var.environment}-${var.project_name}-app-sa"
     display_name = "workload Identity Service account for ${var.project_name} Application"
-    project = var.project_id
+    project_id = var.project_id
 }
 
 resource "google_project_iam_member" "iam" {
@@ -9,7 +9,7 @@ resource "google_project_iam_member" "iam" {
         "roles/storage.objectViewer,"
         "roles/secretmanager.secretAccessor"
     ])
-    project = var.project_id
+    project_id = var.project_id
     role = each.key
     member = "serviceAccount:${google_service_account.gcp.sa.email}"
 

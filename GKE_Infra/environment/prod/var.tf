@@ -67,7 +67,7 @@ variable "firewall_rules" {
     source_service_accounts = optional(list(string))
     target_tags             = optional(list(string))
     target_service_accounts = optional(list(string))
-    project.id = string
+    project_id = string
   }))
   description = "A collection mapping containing standard ingress/egress policies across your production VPC."
 }
