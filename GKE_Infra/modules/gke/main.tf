@@ -1,26 +1,33 @@
+resource "google_project_service" "container" {
+  project            = var.project_id
+  service            = "://googleapis.com"
+  disable_on_destroy = false
+}
+
 resource "google_container_cluster" "gke" {
-    name = var.name
-    location = var.region
-    network = var.vpc_id
-    project = var.project_id
-    subnetwork = var.subnet.id
-    remove_default_node_pool = true
-    initial_node_count = 1
+  name       = var.name
+  location   = var.region
+  network    = var.vpc_id
+  project    = var.project_id
+  subnetwork = var.subnet_id # Fixed: Swapped var.subnet.id for the clean string variable
 
-    ip_allocation_policy {
-        cluster_secondary_range_name = "gke-pods"
-        services_secondary_range_name = "gke-services"
-    }
+  remove_default_node_pool = true
+  initial_node_count       = 1
 
-    private_cluster_config {
-    enable_private_nodes    = true  # Worker nodes have ZERO public IPs
-    enable_private_endpoint = false # Keep control plane endpoint public but securely whitelisted
-    master_ipv4_cidr_block  = "172.16.0.0/28" # Dedicated non-overlapping /28 management block
+  ip_allocation_policy {
+    cluster_secondary_range_name  = "gke-pods"
+    services_secondary_range_name = "gke-services"
+  }
+
+  private_cluster_config {
+    enable_private_nodes    = true 
+    enable_private_endpoint = false 
+    master_ipv4_cidr_block  = "172.16.0.0/28" 
   }
 
   master_authorized_networks_config {
     cidr_blocks {
-      cidr_block   = "10.0.0.0/8" # Replace/expand with Bastion Host, Cloud IAP, or office IP blocks
+      cidr_block   = "10.0.0.0/8" 
       display_name = "internal-vpc-management-access"
     }
   }
@@ -29,10 +36,10 @@ resource "google_container_cluster" "gke" {
     workload_pool = "${var.project_id}.svc.id.goog"
   }
 
-  # Production Auditing & Infrastructure Observability Logs
   logging_config {
     enabled_components = ["SYSTEM_COMPONENTS", "WORKLOADS"]
   }
+  
   monitoring_config {
     enabled_components = ["SYSTEM_COMPONENTS"]
   }
@@ -42,5 +49,4 @@ resource "google_container_cluster" "gke" {
   }
 
   depends_on = [google_project_service.container]
-
 }
