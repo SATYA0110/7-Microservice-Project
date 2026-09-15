@@ -19,6 +19,10 @@ module "gke" {
   source     = "../../modules/gke"
   project_id = var.project_id
   vpc_id     = module.vpc.vpc_id
+  region       = var.region
+  project_name = var.project_id
+  environment  = "dev"
+
 
 
   # Looks up the exact ID from your child subnet resource loop safely
