@@ -68,12 +68,10 @@ variable "firewall_rules" {
     source_service_accounts = optional(list(string))
     target_tags             = optional(list(string))
     target_service_accounts = optional(list(string))
-    project_id = string
+    # project_id = string <-- Fixed: Remove this line completely so tfvars blocks pass validation
   }))
   description = "A collection mapping containing standard ingress/egress policies across your production VPC."
-  
 }
-
 # ==========================================================================
 # Workload Identity Engine Mapping Details
 # ==========================================================================
