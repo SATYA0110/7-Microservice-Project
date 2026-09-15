@@ -48,6 +48,7 @@ module "artifact-registry" {
   project_name = "micro"
   environment  = var.environment
   region       = var.region
+  project = "micro"
 }
 
 
