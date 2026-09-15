@@ -1,10 +1,10 @@
-resource "google_compute_subnet" "subnet" {
+resource "google_compute_subnetwork" "subnet" {
     for_each = var.subnet
     name = each.key
     ip_cidr_range = each.value.ip_cidr
     region = each.value.region
     network = bar.vpc_id
-    project = var.project
+    project = var.project.id
 
     private_ip_google_access = lookup(each.value, "private_ip_google_access", true)
 

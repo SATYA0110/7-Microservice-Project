@@ -2,7 +2,7 @@
 # Core Project and Environment Context
 # ==========================================================================
 project_id   = "your-production-gcp-project-id" # Replace with your real GCP Project ID
-project_name = "cloudkitchen"
+project_name = "micro"
 environment  = "prod"
 region       = "us-central1"
 

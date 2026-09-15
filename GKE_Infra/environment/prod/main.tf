@@ -30,7 +30,6 @@ module "gke" {
 module "security_firewall" {
   source         = "../../modules/firewall"
   project_id     = var.project_id
-  project_name   = var.project_name
   environment    = var.environment
   vpc_name       = module.vpc.vpc_name
   firewall_rules = var.firewall_rules
@@ -39,8 +38,8 @@ module "security_firewall" {
 # --------------------------------------------------------------------------
 # 5. Artifact Registry Module Block
 # --------------------------------------------------------------------------
-module "artifact_registry" {
-  source       = "../../modules/artifact_registry"
+module "artifact-registry" {
+  source       = "../../modules/artifact-registry"
   project_id   = var.project_id
   project_name = var.project_name
   environment  = var.environment
