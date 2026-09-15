@@ -21,7 +21,7 @@ resource "google_artifact_registry_repository" "docker_repo" {
       tag_state             = "TAGGED"
       tag_prefixes          = ["v", "release-"] # Matches standard semver or release prefixes
       newer_than            = "30d"             # Keep images if they are less than 30 days old
-      packageName_prefixes  = []
+      package_name_prefixes  = []
     }
   }
 
