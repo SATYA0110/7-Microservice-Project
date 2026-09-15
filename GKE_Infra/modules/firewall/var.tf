@@ -1,4 +1,4 @@
-variable "firewall_rules" {
+variable "firewall" {
     type = map(object({
         action = optional(string, "allow")
         direction = optional(string, "INGRESS")
