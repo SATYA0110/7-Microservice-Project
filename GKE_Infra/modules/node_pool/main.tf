@@ -1,7 +1,7 @@
 resource "google_container_node_pool" "gke_node" {
     name = "prod-node-pool"
     cluster = google_container_cluster.gke.name
-    project = var.project
+    project = var.project.id
     location =  var.region
 
     initial_node_count = var.gke_min_nodes

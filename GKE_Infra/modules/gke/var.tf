@@ -1,4 +1,4 @@
-variable "project_id" {
+variable "project.id" {
     type = string
 }
 
@@ -13,4 +13,7 @@ variable "environment" {
 variable "region" {
     type = string
 }
+
+variable "vpc_id" { type = string }
+variable "subnet_id" { type = string }
 

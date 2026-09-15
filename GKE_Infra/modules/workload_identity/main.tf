@@ -1,5 +1,5 @@
 resource "google_service_account" "sa" {
-    account_id = ${var.environment}-${var.project_name}-app-sa
+    account_id = "${var.environment}-${var.project_name}-app-sa"
     display_name = "workload Identity Service account for ${var.project_name} Application"
     project = var.project_id
 }

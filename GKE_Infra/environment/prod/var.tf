@@ -2,7 +2,7 @@
 # Core Project and Environment Context
 # ==========================================================================
 
-variable "project_id" {
+variable "project.id" {
   type        = string
   description = "The target Google Cloud Platform (GCP) Project ID."
 }

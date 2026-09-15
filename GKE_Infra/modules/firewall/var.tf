@@ -10,8 +10,15 @@ variable "firewall_rules" {
         source_service_accounts = optional(list(string))
         target_tags = optional(list(string))
         target_service_accounts = optional(list(string))
-        project.id = string
+        
 
 
     }))
 }
+
+variable "project.id" {
+     type = string }
+
+variable "project_name" {type = string}
+variable "environment" {type = string}
+variable "vpc_name" {type = string}

@@ -7,7 +7,7 @@ module "vpc" {
 }
 
 module "subnet" {
-  source  = "../../modules/subnets"
+  source  = "../../modules/subnet"
   project = var.project_id
   subnet  = var.subnets
   
@@ -39,8 +39,7 @@ module "security_firewall" {
 # 5. Artifact Registry Module Block
 # --------------------------------------------------------------------------
 module "artifact-registry" {
-  source       = "../../modules/artifact-registry"
-  project_id   = var.project_id
+   project_id   = var.project_id
   project_name = var.project_name
   environment  = var.environment
   region       = var.region
@@ -52,7 +51,7 @@ module "artifact-registry" {
 # --------------------------------------------------------------------------
 module "workload_identity" {
   source                   = "../../modules/workload_identity"
-  project_id               = var.project_id
+  project_id               = var.project.id
   project_name             = var.project_name
   environment              = var.environment
   k8s_namespace            = var.k8s_namespace

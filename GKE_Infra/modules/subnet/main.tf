@@ -1,5 +1,5 @@
 resource "google_compute_subnetwork" "subnet" {
-    for_each = var.subnet
+    for_each = var.subnets
     name = each.key
     ip_cidr_range = each.value.ip_cidr
     region = each.value.region
