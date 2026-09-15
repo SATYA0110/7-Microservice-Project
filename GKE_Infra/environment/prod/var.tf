@@ -49,6 +49,7 @@ variable "subnets" {
     })), [])
   }))
   description = "A comprehensive multi-tier network structure detailing regions, primary CIDRs, and GKE sub-allocations."
+  variable "vpc_name" { type = string }
 }
 
 # ==========================================================================
@@ -70,6 +71,7 @@ variable "firewall_rules" {
     project_id = string
   }))
   description = "A collection mapping containing standard ingress/egress policies across your production VPC."
+  
 }
 
 # ==========================================================================

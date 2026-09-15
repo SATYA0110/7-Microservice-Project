@@ -12,7 +12,7 @@ module "subnet" {
   subnets  = var.subnets
   
   # Bridges the gap between your two separate folders
-  vpc_id  = module.vpc.vpc_name
+  vpc_name = module.vpc.vpc_name
 }
 
 module "gke" {
