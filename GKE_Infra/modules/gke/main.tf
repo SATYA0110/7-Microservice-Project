@@ -37,11 +37,11 @@ resource "google_container_cluster" "gke" {
   }
 
   logging_config {
-    enabled_components = ["SYSTEM_COMPONENTS", "WORKLOADS"]
+    enable_components = ["SYSTEM_COMPONENTS", "WORKLOADS"] # Fixed: Changed from enabled_components
   }
-  
+
   monitoring_config {
-    enabled_components = ["SYSTEM_COMPONENTS"]
+    enable_components = ["SYSTEM_COMPONENTS"]             # Fixed: Changed from enabled_components
   }
 
   release_channel {
