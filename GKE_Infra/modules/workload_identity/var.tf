@@ -1,22 +1,22 @@
 variable "project_id" {
-    type = string
+  type = string
 }
 
 variable "project_name" {
-    type = string
+  type = string
 }
 
 variable "environment" {
-    type = string
-    default = "prod"
+  type = string
+  default = "prod"
 }
 
 variable "k8s_namespace" {
-    type = string
-    default = "production-apps"
+  type = string
+  default = "production-apps"
 }
 
 variable "k8s_service_account_name" {
-    type = string
-    default = "app-runner-sa"
+  type = string
+  default = "app-runner-sa"
 }
