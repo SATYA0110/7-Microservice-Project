@@ -1,36 +1,38 @@
 resource "google_compute_firewall" "this" {
-    for_each = var.firewall
-    name = each.key 
-    network = google_compute_network.vpc_name
-    project = var.project_id
+  for_each = var.firewall_rules # Fixed: Mapped to correct variable name
+  
+  name    = each.key 
+  network = var.vpc_name        # Fixed: Using variable input instead of missing resource
+  project = var.project_id
 
-    priority = lookup(each.value, "priority" , "1000")
-    direction = lookup(each.value, "direction" , "ingress")
+  priority  = each.value.priority
+  direction = each.value.direction
 
-    source_ranges = lookup(each.value, "source_ranges", "null")
-    source_tags = lookup(each.value, "source_tags", "null")
-    service_account_name = lookup(each.value, "service_account_name", "null")
-    target_tags = lookup(each.value, "target_tags", "null")
-    target_service_account = lookup(each.value, "target_service_account", "null")
-    
+  source_ranges           = each.value.source_ranges
+  source_tags             = each.value.source_tags
+  source_service_accounts = each.value.source_service_accounts # Fixed: Corrected GCP argument name
+  target_tags             = each.value.target_tags
+  target_service_accounts = each.value.target_service_accounts # Fixed: Corrected GCP argument name
 
-    dynamic "allow" {
-        for_each = lookup(each.value, "action", "allow") == "allow" ? [1]:[1]
-        content {
-            protocol = each.value.protocol
-            ports = lookup(each.value, "ports", null)
-        }
+  # Dynamic ALLOW block
+  dynamic "allow" {
+    for_each = lower(each.value.action) == "allow" ? [1] : [] # Fixed: Produces empty list if not allow
+    content {
+      protocol = each.value.protocol # Fixed: using each.value (from the resource loop)
+      ports    = each.value.ports
     }
+  }
 
-    dynamic "deny" {
-        for_each = lookup(each.value, "action", "deny") == "deny" ? [1]:[1]
-        content {
-            protocol = each.value.protocol
-            ports = lookup(each.value, "ports", null)
-        }
+  # Dynamic DENY block
+  dynamic "deny" { # Fixed: Fixed 'deynamic' typo
+    for_each = lower(each.value.action) == "deny" ? [1] : [] # Fixed: Produces empty list if not deny
+    content {
+      protocol = each.value.protocol 
+      ports    = each.value.ports
     }
+  }
 
-    log_config {
+  log_config {
     metadata = "INCLUDE_ALL_METADATA"
   }
 }
