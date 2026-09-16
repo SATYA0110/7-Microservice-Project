@@ -1,5 +1,21 @@
 # i need to script for prod environment 
 
+# --------------------------------------------------------------------------
+# GKE Node Pool Module Block
+# --------------------------------------------------------------------------
+module "nodepool" {
+  source           = "../../modules/nodepool"
+  project_id       = var.project_id
+  region           = var.region
+  environment      = var.environment
+  gke_min_nodes    = var.gke_min_nodes
+  gke_max_nodes    = var.gke_max_nodes
+  
+  # Links the node pool directly to the cluster built by your GKE module.
+  # Note: Ensure your GKE module outputs 'cluster_name' (e.g., output "cluster_name" { value = google_container_cluster.gke.name })
+  gke_cluster_name = module.gke.cluster_name 
+}
+
 module "vpc" {
   source  = "../../modules/vpc"
   project_id = var.project_id
