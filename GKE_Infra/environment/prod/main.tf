@@ -37,6 +37,7 @@ module "gke" {
   project_name = var.project_id
   environment  = "dev"
   name   = "my-gke-cluster"
+  node_service_account = "id-19589081310-compute-develop@project-b072ca81-0008-42cb-81c.iam.gserviceaccount.com"
 
 
 
