@@ -17,7 +17,7 @@ resource "google_container_cluster" "gke" {
 
     # ✅ FIXED: Changed to the required full URL string literal
     oauth_scopes = [
-      "https://googleapis.com"
+      "https://www.googleapis.com/auth/cloud-platform"
     ]
   }
 
