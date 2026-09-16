@@ -28,3 +28,4 @@ variable "name" {
 
 variable "node_service_account" {
 type = string
+}
