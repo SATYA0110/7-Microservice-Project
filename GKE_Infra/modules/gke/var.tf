@@ -25,3 +25,6 @@ variable "subnet_id" {
 variable "name" { 
   type = string 
 }
+
+variable "node_service_account" {
+type = string
