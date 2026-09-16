@@ -1,6 +1,6 @@
 resource "google_container_node_pool" "gke_node" {
     name = "prod-node-pool"
-    cluster = google_container_cluster.gke.name
+    cluster = var.gke_cluster_name
     project = var.project_id
     location =  var.region
 
