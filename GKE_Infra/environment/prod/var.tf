@@ -1,7 +1,13 @@
 # ==========================================================================
 # Core Project and Environment Context
 # ==========================================================================
+variable "gke_min_nodes" {
+    type = number
+}
 
+variable "gke_max_nodes" {
+    type = number
+}
 variable "project_id" {
   type        = string
   description = "The target Google Cloud Platform (GCP) Project ID."
