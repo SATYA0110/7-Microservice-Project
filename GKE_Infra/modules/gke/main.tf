@@ -1,6 +1,6 @@
 resource "google_project_service" "container" {
   project            = var.project_id
-  service = "container.googleapis.com"
+  service            = "container.googleapis.com"
   disable_on_destroy = false
 }
 
@@ -9,12 +9,13 @@ resource "google_container_cluster" "gke" {
   location   = var.region
   network    = var.vpc_id
   project    = var.project_id
-  subnetwork = var.subnet_id # Fixed: Swapped var.subnet.id for the clean string variable
+  subnetwork = var.subnet_id 
 
   node_config {
     # Forces GKE nodes to use this specific service account identity
     service_account = var.node_service_account
 
+    # ✅ FIXED: Changed to the required full URL string literal
     oauth_scopes = [
       "https://googleapis.com"
     ]
@@ -46,11 +47,11 @@ resource "google_container_cluster" "gke" {
   }
 
   logging_config {
-    enable_components = ["SYSTEM_COMPONENTS", "WORKLOADS"] # Fixed: Changed from enabled_components
+    enable_components = ["SYSTEM_COMPONENTS", "WORKLOADS"] 
   }
 
   monitoring_config {
-    enable_components = ["SYSTEM_COMPONENTS"]             # Fixed: Changed from enabled_components
+    enable_components = ["SYSTEM_COMPONENTS"]             
   }
 
   release_channel {
