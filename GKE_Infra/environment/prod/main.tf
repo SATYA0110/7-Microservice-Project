@@ -3,8 +3,8 @@
 # --------------------------------------------------------------------------
 # GKE Node Pool Module Block
 # --------------------------------------------------------------------------
-module "nodepool" {
-  source           = "../../modules/nodepool"
+module "node_pool" {
+  source           = "../../modules/node_pool"
   project_id       = var.project_id
   region           = var.region
   environment      = var.environment
