@@ -11,6 +11,15 @@ resource "google_container_cluster" "gke" {
   project    = var.project_id
   subnetwork = var.subnet_id # Fixed: Swapped var.subnet.id for the clean string variable
 
+  node_config {
+    # Forces GKE nodes to use this specific service account identity
+    service_account = var.node_service_account
+
+    oauth_scopes = [
+      "https://googleapis.com"
+    ]
+  }
+
   remove_default_node_pool = true
   initial_node_count       = 1
 
