@@ -81,3 +81,9 @@ firewall_rules = {
 # ==========================================================================
 k8s_namespace            = "production-apps"
 k8s_service_account_name = "app-runner-sa"
+
+# ==========================================================================
+# GKE Node Pool Scaling Configurations
+# ==========================================================================
+gke_min_nodes = 1
+gke_max_nodes = 3
