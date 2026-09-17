@@ -13,7 +13,8 @@ module "node_pool" {
   
   # Links the node pool directly to the cluster built by your GKE module.
   # Note: Ensure your GKE module outputs 'cluster_name' (e.g., output "cluster_name" { value = google_container_cluster.gke.name })
-  gke_cluster_name = module.gke.cluster_name 
+  gke_cluster_name = module.gke.cluster_name
+  node_service_account = "id-19589081310-compute-develop@project-b072ca81-0008-42cb-81c.iam.gserviceaccount.com"
 }
 
 module "vpc" {
