@@ -21,18 +21,17 @@ resource "google_container_node_pool" "gke_node" {
 
         disk_size_gb = 50
         disk_type    = "pd-ssd"
-    
-
-    shielded_instance_config {
-      enable_secure_boot          = true
-      enable_integrity_monitoring = true
-
     service_account = var.node_service_account
 
     # ✅ FIXED: Changed to the required full URL string literal
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
+    
+
+    shielded_instance_config {
+      enable_secure_boot          = true
+      enable_integrity_monitoring = true
     }
 
     metadata = {
