@@ -2,7 +2,7 @@ FROM ://microsoft.com AS build
 WORKDIR /source
 COPY payment-service.csproj .
 RUN dotnet restore
-COPY ..
+COPY . .
 RUN dotnet publish -c Release -o /app --no-restore
 FROM ://microsoft.com
 WORKDIR /app
