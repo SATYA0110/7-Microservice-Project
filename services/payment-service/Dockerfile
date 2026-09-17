@@ -8,8 +8,10 @@ RUN dotnet publish -c Release -o /app --no-restore
 FROM mcr.microsoft.com/dotnet/sdk:8.0
 WORKDIR /app
 COPY --from=build /app .
-RUN addgroup -g 10007 paymentuser \
-    && adduser -u 10007 -G paymentuser -D paymentuser
+# Create the system group and user using Debian syntax
+RUN groupadd --gid 10007 paymentuser \
+    && useradd --uid 10007 --gid paymentuser --create-home --shell /bin/bash paymentuser
+
 RUN chown -R paymentuser:paymentuser /app
 USER paymentuser
 EXPOSE 8080
