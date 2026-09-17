@@ -2,7 +2,7 @@ FROM golang:1.22-alpine AS build
 WORKDIR /app
 COPY go.mod go.sum* ./
 RUN go mod download
-COPY ..
+COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o catalog-service .
 FROM alpine:3.19
 WORKDIR /app
