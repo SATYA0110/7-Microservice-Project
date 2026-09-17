@@ -11,7 +11,7 @@ WORKDIR /app
 RUN addgroup -g 10005 notifyservice && adduser -u 10005 -G notifyservice -D -S notifyservice
 COPY --from=builder /app/.bundle /app/.bundle
 COPY --from=builder /app/vendor /app/vendor
-COPY ..
+COPY . .
 RUN chown -R notifyservice:notifyservice /app
 USER notifyservice
 EXPOSE 8080
