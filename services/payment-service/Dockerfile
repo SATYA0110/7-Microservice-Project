@@ -8,7 +8,8 @@ RUN dotnet publish -c Release -o /app --no-restore
 FROM mcr.microsoft.com/dotnet/sdk:8.0
 WORKDIR /app
 COPY --from=build /app .
-RUN addgroup -g 10007 paymentuser && adduser -u 10007 -G paymentuser -D -S paymentuser
+RUN addgroup -g 10007 paymentuser \
+    && adduser -u 10007 -G paymentuser -D paymentuser
 RUN chown -R paymentuser:paymentuser /app
 USER paymentuser
 EXPOSE 8080
