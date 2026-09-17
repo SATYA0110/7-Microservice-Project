@@ -21,3 +21,7 @@ variable "environment" {
 variable "gke_cluster_name" {
   type = string
 }
+
+variable "node_service_account" {
+type = string
+}
