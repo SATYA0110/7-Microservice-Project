@@ -6,7 +6,7 @@ variable "project_id" {
 variable "subnets" {
     type = map(object({
         region = string
-        cidr = string
+        ip_cidr = string
         private_ip_google_access = optional(bool, true)
 
         secondary_ranges         = optional(list(object({

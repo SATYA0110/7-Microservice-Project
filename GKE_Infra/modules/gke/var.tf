@@ -1,19 +1,31 @@
 variable "project_id" {
-    type = string
+  type = string
 }
 
 variable "project_name" {
-    type = string
+  type = string
 }
 
 variable "environment" {
-    type = string
+  type = string
 }
 
 variable "region" {
-    type = string
+  type = string
 }
 
-variable "vpc_id" { type = string }
-variable "subnet_id" { type = string }
+variable "vpc_id" { 
+  type = string 
+}
 
+variable "subnet_id" { 
+  type = string 
+}
+
+variable "name" { 
+  type = string 
+}
+
+variable "node_service_account" {
+type = string
+}

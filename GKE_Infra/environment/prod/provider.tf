@@ -11,4 +11,9 @@ terraform {
 provider "google" {
     project = var.project_id
     region = var.region
+<<<<<<< HEAD
 }
+=======
+    
+}
+>>>>>>> c2699fb89b432010bd0bc67d06b3126172539538

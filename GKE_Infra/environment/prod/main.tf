@@ -1,5 +1,22 @@
 # i need to script for prod environment 
 
+# --------------------------------------------------------------------------
+# GKE Node Pool Module Block
+# --------------------------------------------------------------------------
+module "node_pool" {
+  source           = "../../modules/node_pool"
+  project_id       = var.project_id
+  region           = var.region
+  environment      = var.environment
+  gke_min_nodes    = var.gke_min_nodes
+  gke_max_nodes    = var.gke_max_nodes
+  
+  # Links the node pool directly to the cluster built by your GKE module.
+  # Note: Ensure your GKE module outputs 'cluster_name' (e.g., output "cluster_name" { value = google_container_cluster.gke.name })
+  gke_cluster_name = module.gke.cluster_name
+  node_service_account = "id-19589081310-compute-develop@project-b072ca81-0008-42cb-81c.iam.gserviceaccount.com"
+}
+
 module "vpc" {
   source  = "../../modules/vpc"
   project_id = var.project_id
@@ -10,8 +27,6 @@ module "subnet" {
   source  = "../../modules/subnet"
   project_id = var.project_id
   subnets  = var.subnets
-  
-  # Bridges the gap between your two separate folders
   vpc_name = module.vpc.vpc_name
 }
 
@@ -19,6 +34,12 @@ module "gke" {
   source     = "../../modules/gke"
   project_id = var.project_id
   vpc_id     = module.vpc.vpc_id
+  region       = var.region
+  project_name = var.project_id
+  environment  = "dev"
+  name   = "my-gke-cluster"
+  node_service_account = "id-19589081310-compute-develop@project-b072ca81-0008-42cb-81c.iam.gserviceaccount.com"
+
 
 
   # Looks up the exact ID from your child subnet resource loop safely
@@ -30,6 +51,7 @@ module "gke" {
 module "firewall" {
   source         = "../../modules/firewall"
   project_id     = var.project_id
+  project_name  = var.project_name
   environment    = var.environment
   vpc_name       = module.vpc.vpc_name
   firewall_rules = var.firewall_rules
@@ -40,10 +62,11 @@ module "firewall" {
 # --------------------------------------------------------------------------
 module "artifact-registry" {
   source        = "../../modules/artifact-registry"
-  project_id   = var.project_id
-  project_name = var.project_name
+  project_id   = "project-b072ca81-0008-42cb-81c"
+  project_name = "micro"
   environment  = var.environment
   region       = var.region
+  project = "micro"
 }
 
 

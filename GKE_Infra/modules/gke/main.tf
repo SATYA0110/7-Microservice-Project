@@ -1,26 +1,43 @@
+resource "google_project_service" "container" {
+  project            = var.project_id
+  service            = "container.googleapis.com"
+  disable_on_destroy = false
+}
+
 resource "google_container_cluster" "gke" {
-    name = var.name
-    location = var.region
-    network = var.vpc_id
-    project = var.project_id
-    subnetwork = var.subnet.id
-    remove_default_node_pool = true
-    initial_node_count = 1
+  name       = var.name
+  location   = var.region
+  network    = var.vpc_id
+  project    = var.project_id
+  subnetwork = var.subnet_id 
 
-    ip_allocation_policy {
-        cluster_secondary_range_name = "gke-pods"
-        services_secondary_range_name = "gke-services"
-    }
+  node_config {
+    # Forces GKE nodes to use this specific service account identity
+    service_account = var.node_service_account
 
-    private_cluster_config {
-    enable_private_nodes    = true  # Worker nodes have ZERO public IPs
-    enable_private_endpoint = false # Keep control plane endpoint public but securely whitelisted
-    master_ipv4_cidr_block  = "172.16.0.0/28" # Dedicated non-overlapping /28 management block
+    # ✅ FIXED: Changed to the required full URL string literal
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform"
+    ]
+  }
+
+  remove_default_node_pool = true
+  initial_node_count       = 1
+
+  ip_allocation_policy {
+    cluster_secondary_range_name  = "gke-pods"
+    services_secondary_range_name = "gke-services"
+  }
+
+  private_cluster_config {
+    enable_private_nodes    = true 
+    enable_private_endpoint = false 
+    master_ipv4_cidr_block  = "172.16.0.0/28" 
   }
 
   master_authorized_networks_config {
     cidr_blocks {
-      cidr_block   = "10.0.0.0/8" # Replace/expand with Bastion Host, Cloud IAP, or office IP blocks
+      cidr_block   = "10.0.0.0/8" 
       display_name = "internal-vpc-management-access"
     }
   }
@@ -29,12 +46,12 @@ resource "google_container_cluster" "gke" {
     workload_pool = "${var.project_id}.svc.id.goog"
   }
 
-  # Production Auditing & Infrastructure Observability Logs
   logging_config {
-    enabled_components = ["SYSTEM_COMPONENTS", "WORKLOADS"]
+    enable_components = ["SYSTEM_COMPONENTS", "WORKLOADS"] 
   }
+
   monitoring_config {
-    enabled_components = ["SYSTEM_COMPONENTS"]
+    enable_components = ["SYSTEM_COMPONENTS"]             
   }
 
   release_channel {
@@ -42,5 +59,4 @@ resource "google_container_cluster" "gke" {
   }
 
   depends_on = [google_project_service.container]
-
 }

@@ -1,6 +1,6 @@
 resource "google_container_node_pool" "gke_node" {
     name = "prod-node-pool"
-    cluster = google_container_cluster.gke.name
+    cluster = var.gke_cluster_name
     project = var.project_id
     location =  var.region
 
@@ -21,6 +21,12 @@ resource "google_container_node_pool" "gke_node" {
 
         disk_size_gb = 50
         disk_type    = "pd-ssd"
+    service_account = var.node_service_account
+
+    # ✅ FIXED: Changed to the required full URL string literal
+    oauth_scopes = [
+      "https://www.googleapis.com/auth/cloud-platform"
+    ]
     
 
     shielded_instance_config {

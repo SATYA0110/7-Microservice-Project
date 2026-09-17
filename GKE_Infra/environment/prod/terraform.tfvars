@@ -17,32 +17,28 @@ gke_subnet_key = "gke-tier"
 # Dynamic Subnets Topology Map
 # ==========================================================================
 subnets = {
-  # Dedicated Node and Pod/Service cluster spacing block
   "gke-tier" = {
     region                   = "us-central1"
-    ip_cidr                  = "10.0.10.0/24" # Node network interface space
+    ip_cidr                  = "10.0.10.0/24" # Fixed: Renamed from 'cidr' to 'ip_cidr'
     private_ip_google_access = true
     secondary_ranges = [
       {
         range_name    = "gke-pods"
-        ip_cidr_range = "10.4.0.0/14" # Highly elastic /14 block for transient pods
+        ip_cidr_range = "10.4.0.0/14"
       },
       {
         range_name    = "gke-services"
-        ip_cidr_range = "10.8.0.0/20" # Standard /20 block for virtual ClusterIP services
+        ip_cidr_range = "10.8.0.0/20"
       }
     ]
   },
-
-  # Isolated Application Data Persistence Space
   "db-tier" = {
     region                   = "us-central1"
-    ip_cidr                  = "10.0.20.0/24"
+    ip_cidr                  = "10.0.20.0/24" # Fixed: Renamed from 'cidr' to 'ip_cidr'
     private_ip_google_access = true
-    secondary_ranges         = [] # Empty list since DBs don't require alias IPs
+    secondary_ranges         = []
   }
 }
-
 # ==========================================================================
 # Dynamic Enterprise Least-Privilege Firewall Maps
 # ==========================================================================
@@ -85,3 +81,9 @@ firewall_rules = {
 # ==========================================================================
 k8s_namespace            = "production-apps"
 k8s_service_account_name = "app-runner-sa"
+
+# ==========================================================================
+# GKE Node Pool Scaling Configurations
+# ==========================================================================
+gke_min_nodes = 1
+gke_max_nodes = 2
