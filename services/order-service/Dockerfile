@@ -2,7 +2,7 @@ FROM python:3.11-alpine AS build
 WORKDIR /app
 RUN apk add --no-cache build-base libffi-dev
 COPY requirements.txt .
-RUN pip install --no-cache-dir --user-r requirements.txt
+RUN pip install --no-cache-dir --user -r requirements.txt
 FROM python3.11-alpine
 WORKDIR /app
 RUN addgoup 10006 -g orderuser && adduser -u 10006 -G orderuser -D -S orderuser
