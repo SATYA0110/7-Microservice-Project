@@ -4,27 +4,29 @@ RUN apk add --no-cache build-base
 
 COPY Gemfile Gemfile.lock* ./
 
-# 🟢 FIX: Explicitly set the local path context so the folders are generated correctly
-RUN bundle config set --local path 'vendor/bundle' && \
-    bundle config set --local deployment 'true' && \
-    bundle config set --local without 'development test' && \
-    bundle install -j$(nproc)
+# 🟢 FIX: Use environment variables so configuration survives the Bundler self-update/restart
+ENV BUNDLE_PATH="vendor/bundle" \
+    BUNDLE_DEPLOYMENT="true" \
+    BUNDLE_WITHOUT="development test"
+
+RUN bundle install -j$(nproc)
 
 FROM ruby:3.3-alpine
 WORKDIR /app
 
 RUN addgroup -g 10005 notifyservice && adduser -u 10005 -G notifyservice -D -S notifyservice
 
-# These steps will now execute flawlessly because the paths exist!
-COPY --from=builder /app/.bundle /app/.bundle
+# 🟢 FIX: We no longer copy the non-existent .bundle config folder.
+# Instead, we copy the compiled vendor folder, which holds all of your gems.
 COPY --from=builder /app/vendor /app/vendor
 COPY . .
+
+# Inform the runtime stage exactly where the dependencies live
+ENV BUNDLE_PATH="vendor/bundle" \
+    BUNDLE_DEPLOYMENT="true"
 
 RUN chown -R notifyservice:notifyservice /app
 USER notifyservice
 
-# Optional Note: The DevOps Shack microservice standard maps notifications to 8086, 
-# but you can leave this on 8080 if your routing configuration uses it.
 EXPOSE 8080
 CMD ["bundle", "exec", "ruby", "app.rb"]
-
