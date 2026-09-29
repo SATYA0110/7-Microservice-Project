@@ -20,7 +20,7 @@ spec:
     # NOTE: Replace with your real Git repository URL.
     repoURL: https://github.com/SATYA0110/7-Microservice-Project.git # <-- REPLACE
     targetRevision: main
-    path: helm/micro
+    path: helm
     # No valueFiles: ArgoCD renders the chart with its own helm/micro/values.yaml.
     # CI keeps the image strings in that file up to date.
 
