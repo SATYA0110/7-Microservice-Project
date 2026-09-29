@@ -38,7 +38,7 @@ spec:
           containerPort: {{ .Values.notificationService.port }}
         resources:
           requests:
-            cpu:50m
+            cpu: 50m
             memory: 128Mi
           limits:
             cpu: 100m
