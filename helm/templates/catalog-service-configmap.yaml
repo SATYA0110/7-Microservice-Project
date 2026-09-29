@@ -15,4 +15,3 @@ data:
   DB_SCHEMA: "catalog"
   DB_SSLMODE: {{ .Values.db.sslmode | quote }}
   REDIS_ADDR: "{{ .Values.redis.servicename }}:{{ .Values.redis.port }}"
-  RESTAURANT_SERVICE_URL: "http://{{ .Values.restaurantService.servicename }}:{{ .Values.restaurantService.port }}"
