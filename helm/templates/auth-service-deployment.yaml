@@ -23,6 +23,7 @@ spec:
         runAsNonRoot: true
         runAsUser: 65532
         fsGroup: 65532
+      serviceAccountName: gar-puller-sa
       containers:
       - name: auth-service
         image: {{ .Values.authService.image }}
