@@ -13,8 +13,7 @@ metadata:
   labels:
     app: platform-services
 spec:
-  entryPoints:
-    - {{ .Values.ingress.entryPoint | default "web" }}
+  
   routes:
     # --- Auth Service ---
     - match: PathPrefix(`/api/auth`)
