@@ -6,7 +6,7 @@
 # Eliminates external domain dependencies, relying strictly on internal cluster paths.
 # =============================================================================
 apiVersion: networking.k8s.io/v1
-kind: IngressRoute
+kind: Ingress
 metadata:
   name: platform-ingress
   namespace: {{ .Values.namespace | default .Release.Namespace }}
