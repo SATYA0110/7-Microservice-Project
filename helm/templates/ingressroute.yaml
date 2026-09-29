@@ -1,4 +1,4 @@
-yaml{{- if .Values.ingress.enabled -}}
+{{- if .Values.ingress.enabled }}
 # =============================================================================
 # Application Ingress Routing (Traefik Custom Resources)
 # -----------------------------------------------------------------------------
@@ -9,12 +9,12 @@ apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: platform-ingress
-  namespace: {{ .Values.namespace }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   labels:
     app: platform-services
 spec:
   entryPoints:
-    - {{ .Values.ingress.entryPoint }}
+    - {{ .Values.ingress.entryPoint | default "web" }}
   routes:
     # --- Auth Service ---
     - match: PathPrefix(`/api/auth`)
@@ -79,7 +79,6 @@ spec:
       services:
         - name: {{ .Values.frontend.servicename }}
           port: {{ .Values.frontend.port | default 80 }}
-          
   {{- if .Values.ingress.tls }}
   tls:
     secretName: {{ .Values.ingress.tlsSecretName }}
