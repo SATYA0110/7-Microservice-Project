@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.authService.deploymentname }}
+  name: {{ .Values.catalogService.deploymentname }}
   namespace: {{ .Values.namespace }}
   labels:
-    app: auth-service
+    app: catalog-service
 spec:
-  replicas: {{ .Values.authService.replicas }}
+  replicas: {{ .Values.catalogService.replicas }}
   selector:
     matchLabels:
-      app: auth-service
+      app: catalog-service
   template:
     metadata:
       labels:
-        app: auth-service
+        app: catalog-service
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: "8081"
+        prometheus.io/port: "{{ .Values.catalogService.port }}"
         prometheus.io/path: "/metrics"
     spec:
       securityContext:
@@ -24,8 +24,8 @@ spec:
         runAsUser: 65532
         fsGroup: 65532
       containers:
-      - name: auth-service
-        image: {{ .Values.authService.image }}
+      - name: catalog-service
+        image: {{ .Values.catalogService.image }}
         imagePullPolicy: Always
         securityContext:
           allowPrivilegeEscalation: false
@@ -34,7 +34,7 @@ spec:
             - ALL
         ports:
         - name: http
-          containerPort: 8081  # Fixed to match application.properties
+          containerPort: {{ .Values.catalogService.port }}
         resources:
           requests:
             cpu: 100m
@@ -44,36 +44,23 @@ spec:
             memory: 512Mi
         livenessProbe:
           httpGet:
-            path: /health      # Fixed to match AuthController GetMapping
-            port: 8081         # Fixed runtime port
+            path: /healthz
+            port: {{ .Values.catalogService.port }}
           initialDelaySeconds: 20
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /health      # Fixed to match AuthController GetMapping
-            port: 8081         # Fixed runtime port
+            path: /readyz
+            port: {{ .Values.catalogService.port }}
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 3
           failureThreshold: 3
-        env:
-        # Construct the exact URL Spring Boot expects using ConfigMap variables
-        - name: AUTH_DB_URL
-          value: "jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
-        # Map user credentials from your secretRef to the precise keys your code expects
-        - name: DB_USER
-          valueFrom:
-            secretKeyRef:
-              name: auth-service-secret
-              key: dbUser
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: auth-service-secret
-              key: dbPassword
         envFrom:
         - configMapRef:
-            name: auth-service-config
+            name: catalog-service-config
+        - secretRef:
+            name: catalog-service-secret
 
