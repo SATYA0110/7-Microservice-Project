@@ -17,9 +17,8 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 10001          # nginx user in the nginx:alpine image
-        fsGroup: 10001
-      serviceAccountName: gar-puller-sa
+        runAsUser: 10001        # FIXED: Matches the exact UID defined in your Dockerfile
+        fsGroup: 10001          # FIXED: Matches the exact GID defined in your Dockerfile
       containers:
       - name: frontend
         image: {{ .Values.frontend.image }}
@@ -37,17 +36,17 @@ spec:
             cpu: 50m
             memory: 64Mi
           limits:
-            cpu: 100m
+            cpu: 200m
             memory: 256Mi
         livenessProbe:
           httpGet:
             path: /
             port: {{ .Values.frontend.port }}
-          initialDelaySeconds: 10
+          initialDelaySeconds: 15
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /
             port: {{ .Values.frontend.port }}
-          initialDelaySeconds: 5
+          initialDelaySeconds: 10
           periodSeconds: 5
