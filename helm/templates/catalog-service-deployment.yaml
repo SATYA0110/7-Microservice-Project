@@ -16,7 +16,7 @@ spec:
         app: catalog-service
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: "{{ .Values.catalogService.port }}"
+        prometheus.io/port: "8082"
         prometheus.io/path: "/metrics"
     spec:
       securityContext:
@@ -34,7 +34,7 @@ spec:
             - ALL
         ports:
         - name: http
-          containerPort: {{ .Values.catalogService.port }}
+          containerPort: 8082  # Aligned to Go ListenAndServe port
         resources:
           requests:
             cpu: 100m
@@ -44,20 +44,32 @@ spec:
             memory: 512Mi
         livenessProbe:
           httpGet:
-            path: /healthz
-            port: {{ .Values.catalogService.port }}
+            path: /health      # Aligned to router mapping
+            port: 8082
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /health      # Aligned to router mapping
+            port: 8082
           initialDelaySeconds: 20
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /readyz
-            port: {{ .Values.catalogService.port }}
+            path: /health      # Aligned to router mapping
+            port: 8082
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 3
           failureThreshold: 3
+        env:
+        # Construct the DSN string Go expects using existing ConfigMap and Secret keys
+        - name: CATALOG_DB_DSN
+          value: "postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)"
         envFrom:
         - configMapRef:
             name: catalog-service-config
