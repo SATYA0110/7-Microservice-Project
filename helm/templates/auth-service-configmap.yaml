@@ -7,7 +7,6 @@ metadata:
     app: auth-service
 data:
   SERVICE_NAME: "auth-service"
-  PORT: "{{ .Values.authService.port }}"
   LOG_LEVEL: "info"
   DB_HOST: {{ .Values.db.host | quote }}
   DB_PORT: {{ .Values.db.port | quote }}
