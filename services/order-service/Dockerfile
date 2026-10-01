@@ -1,26 +1,40 @@
-# Stage 1: Build the C# application
-FROM ://microsoft.com AS build
-WORKDIR /source
+# --- Build Stage ---
+FROM python:3.11-slim AS builder
 
-# Copy csproj and restore dependencies
-COPY payment-service.csproj .
-RUN dotnet restore
-
-# Copy the remaining source code and publish
-COPY . .
-RUN dotnet publish -c Release -o /app --no-restore
-
-# Stage 2: Build the production runtime image
-FROM ://microsoft.com
 WORKDIR /app
-COPY --from=build /app .
 
-# Configure a secure non-root user
-RUN addgroup -g 10007 paymentuser && adduser -u 10007 -G paymentuser -D -S paymentuser
-RUN chown -R paymentuser:paymentuser /app
-USER paymentuser
+# Install system dependencies required for building psycopg2 (PostgreSQL adapter)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Match the explicit port defined in the C# Program.cs file (8085)
-EXPOSE 8085
+# Copy only the requirements file first to leverage Docker layer caching
+COPY requirements.txt .
 
-CMD ["dotnet", "payment-service.dll"]
+# Install dependencies into a localized wheel folder
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# --- Final Runner Stage ---
+FROM python:3.11-slim AS runner
+
+WORKDIR /app
+
+# Install runtime library needed by psycopg2
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy installed python dependencies from the builder stage
+COPY --from=builder /root/.local /root/.local
+COPY main.py .
+
+# Add local site-packages to python path
+ENV PATH=/root/.local/bin:$PATH
+ENV PYTHONUNBUFFERED=1
+
+# Expose FastAPI default port
+EXPOSE 8000
+
+# Run the application using Uvicorn
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
