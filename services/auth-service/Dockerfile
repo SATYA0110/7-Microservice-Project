@@ -11,4 +11,4 @@ COPY --from=build /build/target/*.jar ./auth-service.jar
 RUN chown -R authuser:authuser /app
 USER authuser
 EXPOSE 8080
-ENTRYPOINT ["java" , "-jar" , "auth-service.java"]
+ENTRYPOINT ["java" , "-jar" , "auth-service.jar"]
