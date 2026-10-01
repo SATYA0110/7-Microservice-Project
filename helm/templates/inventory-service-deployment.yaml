@@ -16,14 +16,13 @@ spec:
         app: inventory-service
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: "{{ .Values.inventoryService.port }}"
+        prometheus.io/port: "8083"
         prometheus.io/path: "/metrics"
     spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: 65532
         fsGroup: 65532
-      serviceAccountName: gar-puller-sa
       containers:
       - name: inventory-service
         image: {{ .Values.inventoryService.image }}
@@ -35,30 +34,34 @@ spec:
             - ALL
         ports:
         - name: http
-          containerPort: {{ .Values.inventoryService.port }}
+          containerPort: 8083 # Aligned to Express source port
         resources:
           requests:
-            cpu: 50m
+            cpu: 100m
             memory: 128Mi
           limits:
-            cpu: 100m
+            cpu: 500m
             memory: 512Mi
         livenessProbe:
           httpGet:
-            path: /healthz
-            port: {{ .Values.inventoryService.port }}
+            path: /health     # Fixed endpoint mapping path
+            port: 8083
           initialDelaySeconds: 20
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /readyz
-            port: {{ .Values.inventoryService.port }}
+            path: /health     # Fixed endpoint mapping path
+            port: 8083
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 3
           failureThreshold: 3
+        env:
+        # Dynamically construct the single connection URL expected by pg Pool
+        - name: INVENTORY_DB_URL
+          value: "postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)"
         envFrom:
         - configMapRef:
             name: inventory-service-config
