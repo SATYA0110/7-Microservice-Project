@@ -34,7 +34,8 @@ RUN chown -R orderuser:orderuser /app
 USER orderuser
 
 # Explicitly match the architectural network port your Python app listens on
-EXPOSE 8084
+# Expose the correct application port
+EXPOSE 8080
 
-# Run the Uvicorn application server mapped to the proper entrypoint port
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8084"]
+# Serve the application instance via Uvicorn
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
