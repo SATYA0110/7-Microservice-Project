@@ -16,14 +16,13 @@ spec:
         app: notification-service
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: "{{ .Values.notificationService.port }}"
+        prometheus.io/port: "8086"
         prometheus.io/path: "/metrics"
     spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: 65532
         fsGroup: 65532
-      serviceAccountName: gar-puller-sa
       containers:
       - name: notification-service
         image: {{ .Values.notificationService.image }}
@@ -35,30 +34,34 @@ spec:
             - ALL
         ports:
         - name: http
-          containerPort: {{ .Values.notificationService.port }}
+          containerPort: 8086  # FIX: Forced runtime container port to match Sinatra code
         resources:
           requests:
-            cpu: 50m
+            cpu: 100m
             memory: 128Mi
           limits:
-            cpu: 100m
+            cpu: 500m
             memory: 512Mi
         livenessProbe:
           httpGet:
-            path: /healthz
-            port: {{ .Values.notificationService.port }}
+            path: /health      # FIX: Adjusted endpoint path to match code routing
+            port: 8086
           initialDelaySeconds: 20
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /readyz
-            port: {{ .Values.notificationService.port }}
+            path: /health      # FIX: Adjusted endpoint path to match code routing
+            port: 8086
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 3
           failureThreshold: 3
+        env:
+        # FIX: Construct the specific database connection URL string string data Go/Ruby reads
+        - name: NOTIFICATION_DB_URL
+          value: "postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)"
         envFrom:
         - configMapRef:
             name: notification-service-config
