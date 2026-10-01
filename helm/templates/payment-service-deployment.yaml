@@ -23,7 +23,6 @@ spec:
         runAsNonRoot: true
         runAsUser: 65532
         fsGroup: 65532
-      serviceAccountName: gar-puller-sa
       containers:
       - name: payment-service
         image: {{ .Values.paymentService.image }}
@@ -38,14 +37,14 @@ spec:
           containerPort: {{ .Values.paymentService.port }}
         resources:
           requests:
-            cpu: 50m
+            cpu: 100m
             memory: 128Mi
           limits:
-            cpu: 100m
+            cpu: 500m
             memory: 512Mi
         livenessProbe:
           httpGet:
-            path: /healthz
+            path: /health
             port: {{ .Values.paymentService.port }}
           initialDelaySeconds: 20
           periodSeconds: 10
@@ -53,12 +52,19 @@ spec:
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /readyz
+            path: /health
             port: {{ .Values.paymentService.port }}
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 3
           failureThreshold: 3
+        env:
+        # 1. Override the hardcoded C# 8085 port to match the values.yaml configuration (8080)
+        - name: ASPNETCORE_URLS
+          value: "http://0.0.0:{{ .Values.paymentService.port }}"
+        # 2. Dynamic generation of the exact connection string URL structure expected by Npgsql
+        - name: PAYMENT_DB_URL
+          value: "Host=$(DB_HOST);Port=$(DB_PORT);Database=$(DB_NAME);Username=$(DB_USER);Password=$(DB_PASSWORD);SSL Mode=$(DB_SSLMODE);Search Path=$(DB_SCHEMA);"
         envFrom:
         - configMapRef:
             name: payment-service-config
