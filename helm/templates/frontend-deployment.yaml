@@ -17,8 +17,8 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 101          # nginx user in the nginx:alpine image
-        fsGroup: 101
+        runAsUser: 10001          # nginx user in the nginx:alpine image
+        fsGroup: 10001
       serviceAccountName: gar-puller-sa
       containers:
       - name: frontend
