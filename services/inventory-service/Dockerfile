@@ -1,18 +1,23 @@
 # 🟢 Use a simple, robust production configuration for Node backends
-FROM node:20-alpine
-WORKDIR /usr/src/app
-
-# Copy dependency mappings
+FROM node:20-alpine AS build
+WORKDIR /app
 COPY package*.json ./
-
-# Install only production dependencies (saves space and bypasses dev issues)
-RUN npm ci --omit=dev
-
-# Copy the rest of the application files
+RUN npm ci
 COPY . .
 
-# Expose the microservice port (Inventory defaults to 8083)
-EXPOSE 8083
+# Stage 2: Clean runtime stage
+FROM node:20-alpine
+WORKDIR /app
+RUN addgroup -g 10004 inventoryuser && adduser -u 10004 -G inventoryuser -D -S inventoryuser
 
-# Start the Node process directly without a build layer
-CMD ["npm", "start"]
+# Copy source and production node_modules from build stage safely
+COPY --from=build /app/package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+COPY --from=build /app .
+
+RUN chown -R inventoryuser:inventoryuser /app
+USER inventoryuser
+
+# Aligned to match the source code runtime port
+EXPOSE 8083
+CMD ["node" , "index.js"]
