@@ -1,23 +1,20 @@
-FROM ruby:3.3-alpine AS builder
+FROM node:20-alpine
 WORKDIR /app
-RUN apk add --no-cache build-base
-COPY Gemfile Gemfile.lock* ./
-RUN bundle config set --local deployment 'true' && \
-    bundle config set --local without 'development test' && \
-    bundle install -j$(nproc)
 
-FROM ruby:3.3-alpine
-WORKDIR /app
-RUN addgroup -g 10005 notifyservice && adduser -u 10005 -G notifyservice -D -S notifyservice
-COPY --from=builder /app/.bundle /app/.bundle
-COPY --from=builder /app/vendor /app/vendor
+# Create user matching the Kubernetes securityContext (65532)
+RUN addgroup -g 65532 inventoryuser && adduser -u 65532 -G inventoryuser -D -S inventoryuser
 
-# FIX: Correct context copying path syntax
+# Install production dependencies only
+COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+
+# Copy application source code
 COPY . .
 
-RUN chown -R notifyservice:notifyservice /app
-USER notifyservice
+# Set correct ownership
+RUN chown -R inventoryuser:inventoryuser /app
+USER inventoryuser
 
-# FIX: Matches the hardcoded Sinatra application runtime port mapping
-EXPOSE 8086
-CMD ["bundle" , "exec" , "ruby" , "app.rb"]
+# Match application port 8083
+EXPOSE 8083
+CMD ["node", "index.js"]
