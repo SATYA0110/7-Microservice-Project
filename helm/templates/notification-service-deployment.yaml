@@ -16,13 +16,13 @@ spec:
         app: notification-service
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: "8086"
+        prometheus.io/port: "{{ .Values.notificationService.port }}"
         prometheus.io/path: "/metrics"
     spec:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 65532
-        fsGroup: 65532
+        runAsUser: 10005  # Aligned with the Dockerfile UID
+        fsGroup: 10005   # Aligned with the Dockerfile GID
       containers:
       - name: notification-service
         image: {{ .Values.notificationService.image }}
@@ -34,7 +34,7 @@ spec:
             - ALL
         ports:
         - name: http
-          containerPort: 8086  # FIX: Forced runtime container port to match Sinatra code
+          containerPort: {{ .Values.notificationService.port }}
         resources:
           requests:
             cpu: 100m
@@ -44,26 +44,23 @@ spec:
             memory: 512Mi
         livenessProbe:
           httpGet:
-            path: /health      # FIX: Adjusted endpoint path to match code routing
-            port: 8086
+            path: /healthz
+            port: {{ .Values.notificationService.port }}
           initialDelaySeconds: 20
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /health      # FIX: Adjusted endpoint path to match code routing
-            port: 8086
+            path: /readyz
+            port: {{ .Values.notificationService.port }}
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 3
           failureThreshold: 3
-        env:
-        # FIX: Construct the specific database connection URL string string data Go/Ruby reads
-        - name: NOTIFICATION_DB_URL
-          value: "postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSLMODE)"
         envFrom:
         - configMapRef:
             name: notification-service-config
         - secretRef:
             name: notification-service-secret
+
