@@ -1,23 +1,23 @@
-# 🟢 Use a simple, robust production configuration for Node backends
-FROM node:20-alpine AS build
+FROM ruby:3.3-alpine AS builder
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci
+RUN apk add --no-cache build-base
+COPY Gemfile Gemfile.lock* ./
+RUN bundle config set --local deployment 'true' && \
+    bundle config set --local without 'development test' && \
+    bundle install -j$(nproc)
+
+FROM ruby:3.3-alpine
+WORKDIR /app
+RUN addgroup -g 10005 notifyservice && adduser -u 10005 -G notifyservice -D -S notifyservice
+COPY --from=builder /app/.bundle /app/.bundle
+COPY --from=builder /app/vendor /app/vendor
+
+# FIX: Correct context copying path syntax
 COPY . .
 
-# Stage 2: Clean runtime stage
-FROM node:20-alpine
-WORKDIR /app
-RUN addgroup -g 10004 inventoryuser && adduser -u 10004 -G inventoryuser -D -S inventoryuser
+RUN chown -R notifyservice:notifyservice /app
+USER notifyservice
 
-# Copy source and production node_modules from build stage safely
-COPY --from=build /app/package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
-COPY --from=build /app .
-
-RUN chown -R inventoryuser:inventoryuser /app
-USER inventoryuser
-
-# Aligned to match the source code runtime port
-EXPOSE 8083
-CMD ["node" , "index.js"]
+# FIX: Matches the hardcoded Sinatra application runtime port mapping
+EXPOSE 8086
+CMD ["bundle" , "exec" , "ruby" , "app.rb"]
