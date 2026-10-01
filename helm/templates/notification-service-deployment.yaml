@@ -58,9 +58,43 @@ spec:
           periodSeconds: 5
           timeoutSeconds: 3
           failureThreshold: 3
+        env:
+        # 1. First, pull the raw variable properties out of your config map
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: auth-service-config  # Use the shared config map containing DB_HOST
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: auth-service-config
+              key: DB_PORT
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: auth-service-config
+              key: DB_NAME
+
+        # 2. Pull the credentials out of your secret configuration
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: auth-service-secret
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: auth-service-secret
+              key: DB_PASSWORD
+
+        # 3. Now that variables 1 and 2 exist, construct the database target string safely
+        - name: DATABASE_URL
+          value: "postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
+          
         envFrom:
         - configMapRef:
-            name: notification-service-config
+            name: auth-service-config
         - secretRef:
-            name: notification-service-secret
+            name: auth-service-secret
 
