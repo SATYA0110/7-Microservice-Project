@@ -16,3 +16,4 @@ data:
   DB_SCHEMA: "notifications"
   DB_SSLMODE: {{ .Values.db.sslmode | quote }}
   REDIS_ADDR: "{{ .Values.redis.servicename }}:{{ .Values.redis.port }}"
+  DATABASE_URL: "postgresql://microapp:microapp123@{{ .Values.db.host }}:{{ .Values.db.port }}/{{ .Values.db.name }}?sslmode={{ .Values.db.sslmode }}"
