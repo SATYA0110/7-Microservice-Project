@@ -59,14 +59,14 @@ spec:
           timeoutSeconds: 3
           failureThreshold: 3
         env:
-        # 1. Override the hardcoded C# 8085 port to match the values.yaml configuration (8080)
+        # 1. FIXED: Corrected IP binding format string to 0.0.0.0 for proper routing
         - name: ASPNETCORE_URLS
-          value: "http://0.0.0:{{ .Values.paymentService.port }}"
-        # 2. Dynamic generation of the exact connection string URL structure expected by Npgsql
+          value: "http://0.0.0.0:{{ .Values.paymentService.port }}"
+        # 2. FIXED: Injected schema directly via Helm template to resolve the evaluation order crash
         - name: PAYMENT_DB_URL
-          value: "Host=$(DB_HOST);Port=$(DB_PORT);Database=$(DB_NAME);Username=$(DB_USER);Password=$(DB_PASSWORD);SSL Mode=$(DB_SSLMODE);Search Path=$(DB_SCHEMA);"
+          value: "Host=$(DB_HOST);Port=$(DB_PORT);Database=$(DB_NAME);Username=$(DB_USER);Password=$(DB_PASSWORD);SSL Mode=$(DB_SSLMODE);Search Path={{ .Values.paymentService.schema }},public;"
         envFrom:
         - configMapRef:
             name: payment-service-config
         - secretRef:
-            name: payment-service-secret
+            name: payment-service-secr
