@@ -24,7 +24,6 @@ spec:
   sourceRepos:
     - https://github.com/SATYA0110/7-Microservice-Project.git # <-- REPLACE with real repo URL
     # Helm chart registries used by the platform add-on Applications:
-    - https://helm.traefik.io/traefik
     - https://charts.jetstack.io
     - https://prometheus-community.github.io/helm-charts
     - https://grafana.github.io/helm-charts
