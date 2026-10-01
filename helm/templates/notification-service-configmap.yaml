@@ -9,11 +9,7 @@ data:
   SERVICE_NAME: "notification-service"
   PORT: "{{ .Values.notificationService.port }}"
   LOG_LEVEL: "info"
-  PGHOST: {{ .Values.db.host | quote }}
-  PGPORT: {{ .Values.db.port | quote }}
-  PGDATABASE: {{ .Values.db.name | quote }}
-  PGUSER: "microapp"
-  DB_SCHEMA: "notifications"
-  DB_SSLMODE: {{ .Values.db.sslmode | quote }}
+  # Assembled for Sinatra app; reads DB_USER and DB_PASSWORD directly from the Secret context at runtime
+  NOTIFICATION_DB_URL: "postgres://$(DB_USER):$(DB_PASSWORD)@{{ .Values.db.host }}:{{ .Values.db.port }}/{{ .Values.db.name }}?sslmode={{ .Values.db.sslmode }}"
   REDIS_ADDR: "{{ .Values.redis.servicename }}:{{ .Values.redis.port }}"
-  DATABASE_URL: "postgresql://microapp:microapp123@{{ .Values.db.host }}:{{ .Values.db.port }}/{{ .Values.db.name }}?sslmode={{ .Values.db.sslmode }}"
+
