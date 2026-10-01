@@ -29,7 +29,7 @@ authService:
   servicename: auth-service
   image: us-central1-docker.pkg.dev/project-b072ca81-0008-42cb-81c/prod-micro-docker-repo/auth-service:44
   replicas: 1
-  port: 8080
+  port: 8081
   schema: auths
   hpa: auth-service-autoscaler
   minReplicas: 1
