@@ -1,40 +1,40 @@
-# --- Build Stage ---
+# Stage 1: Build & compile Python package wheels
 FROM python:3.11-slim AS builder
-
 WORKDIR /app
 
-# Install system dependencies required for building psycopg2 (PostgreSQL adapter)
+# Install compilation headers required for database connectors like psycopg2
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy only the requirements file first to leverage Docker layer caching
+# Install python execution bundle dependencies
 COPY requirements.txt .
-
-# Install dependencies into a localized wheel folder
 RUN pip install --no-cache-dir --user -r requirements.txt
 
-# --- Final Runner Stage ---
-FROM python:3.11-slim AS runner
-
+# Stage 2: Minimal runtime image
+FROM python:3.11-slim
 WORKDIR /app
 
-# Install runtime library needed by psycopg2
+# Install bare-minimum runtime client library for PostgreSQL
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy installed python dependencies from the builder stage
-COPY --from=builder /root/.local /root/.local
-COPY main.py .
+# Add a secure non-root systems worker account
+RUN adduser --disabled-password --gecos "" orderuser
 
-# Add local site-packages to python path
-ENV PATH=/root/.local/bin:$PATH
-ENV PYTHONUNBUFFERED=1
+# Copy installed dependencies cleanly from the builder stage
+COPY --from=builder /root/.local /home/orderuser/.local
+COPY . .
 
-# Expose FastAPI default port
-EXPOSE 8000
+# Update path execution environments to locate the copied wheel binaries
+ENV PATH=/home/orderuser/.local/bin:$PATH
+RUN chown -R orderuser:orderuser /app
+USER orderuser
 
-# Run the application using Uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Explicitly match the architectural network port your Python app listens on
+EXPOSE 8084
+
+# Run the Uvicorn application server mapped to the proper entrypoint port
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8084"]
