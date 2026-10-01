@@ -1,32 +1,22 @@
 FROM ruby:3.3-alpine AS builder
 WORKDIR /app
-RUN apk add --no-cache build-base
-
+# Install postgresql-dev dependencies so the native 'pg' gem compiles properly
+RUN apk add --no-cache build-base postgresql-dev
 COPY Gemfile Gemfile.lock* ./
-
-# 🟢 FIX: Use environment variables so configuration survives the Bundler self-update/restart
-ENV BUNDLE_PATH="vendor/bundle" \
-    BUNDLE_DEPLOYMENT="true" \
-    BUNDLE_WITHOUT="development test"
-
-RUN bundle install -j$(nproc)
+RUN bundle config set --local deployment 'true' && \
+    bundle config set --local without 'development test' && \
+    bundle install -j$(nproc)
 
 FROM ruby:3.3-alpine
 WORKDIR /app
-
+# Keep dynamic libpq dependencies for runtime execution of the pg gem
+RUN apk add --no-cache libpq
 RUN addgroup -g 10005 notifyservice && adduser -u 10005 -G notifyservice -D -S notifyservice
-
-# 🟢 FIX: We no longer copy the non-existent .bundle config folder.
-# Instead, we copy the compiled vendor folder, which holds all of your gems.
+COPY --from=builder /app/.bundle /app/.bundle
 COPY --from=builder /app/vendor /app/vendor
+# Corrected copy instruction context
 COPY . .
-
-# Inform the runtime stage exactly where the dependencies live
-ENV BUNDLE_PATH="vendor/bundle" \
-    BUNDLE_DEPLOYMENT="true"
-
 RUN chown -R notifyservice:notifyservice /app
 USER notifyservice
-
 EXPOSE 8080
-CMD ["bundle", "exec", "ruby", "app.rb"]
+CMD ["bundle" , "exec" , "ruby" , "app.rb"]
