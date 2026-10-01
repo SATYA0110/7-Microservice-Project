@@ -10,5 +10,5 @@ RUN addgroup -g 10002 authuser && adduser -u 10002 -G authuser -D -S authuser
 COPY --from=build /build/target/*.jar ./auth-service.jar
 RUN chown -R authuser:authuser /app
 USER authuser
-EXPOSE 8080
+EXPOSE 8081
 ENTRYPOINT ["java" , "-jar" , "auth-service.jar"]
