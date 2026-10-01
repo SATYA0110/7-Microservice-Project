@@ -12,5 +12,5 @@ spec:
     app: inventory-service
   ports:
   - name: http
-    port: {{ .Values.inventoryService.port }}
-    targetPort: {{ .Values.inventoryService.port }}
+    port: {{ .Values.inventoryService.port }} # Global cluster tracking port (8080)
+    targetPort: 8083   
