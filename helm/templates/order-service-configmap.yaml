@@ -7,7 +7,7 @@ metadata:
     app: order-service
 data:
   SERVICE_NAME: "order-service"
-  # Providing URLs matching what the Python code queries
+  # Clean base URLs matching the variable schema your Python code expects
   CATALOG_URL: "http://{{ .Values.catalogService.servicename }}:{{ .Values.catalogService.port }}"
-  INVENTORY_URL: "http://{{ .Values.inventoryService.servicename }}:{{ .Values.inventoryService.port }}/inventory"
+  INVENTORY_URL: "http://{{ .Values.inventoryService.servicename }}:{{ .Values.inventoryService.port }}"
   NOTIFICATION_URL: "http://{{ .Values.notificationService.servicename }}:{{ .Values.notificationService.port }}"
