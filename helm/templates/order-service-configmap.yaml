@@ -7,14 +7,7 @@ metadata:
     app: order-service
 data:
   SERVICE_NAME: "order-service"
-  PORT: "{{ .Values.orderService.port }}"
-  LOG_LEVEL: "info"
-  PGHOST: {{ .Values.db.host | quote }}
-  PGPORT: {{ .Values.db.port | quote }}
-  PGDATABASE: {{ .Values.db.name | quote }}
-  PGUSER: "microapp" 
-  PGPASSWORD: "your_password" # Or bind via your secret file
-  DB_SCHEMA: "orders"
-  
-  REDIS_ADDR: "{{ .Values.redis.servicename }}:{{ .Values.redis.port }}"
-  
+  # Providing URLs matching what the Python code queries
+  CATALOG_URL: "http://{{ .Values.catalogService.servicename }}:{{ .Values.catalogService.port }}"
+  INVENTORY_URL: "http://{{ .Values.inventoryService.servicename }}:{{ .Values.inventoryService.port }}/inventory"
+  NOTIFICATION_URL: "http://{{ .Values.notificationService.servicename }}:{{ .Values.notificationService.port }}"
