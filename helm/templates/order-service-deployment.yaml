@@ -28,39 +28,25 @@ spec:
       - name: order-service
         image: {{ .Values.orderService.image }}
         imagePullPolicy: Always
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - ALL
         ports:
         - name: http
-          containerPort: {{ .Values.orderService.port }}
-        resources:
-          requests:
-            cpu: 50m
-            memory: 128Mi
-          limits:
-            cpu: 100m
-            memory: 512Mi
+          containerPort: 8080
         livenessProbe:
           httpGet:
-            path: /healthz
-            port: {{ .Values.orderService.port }}
-          initialDelaySeconds: 20
+            path: /health
+            port: 8080
+          initialDelaySeconds: 15
           periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /readyz
-            port: {{ .Values.orderService.port }}
+            path: /health
+            port: 8080
           initialDelaySeconds: 10
           periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 3
         envFrom:
+        # Automatically injects SERVICE_NAME, CATALOG_URL, INVENTORY_URL, NOTIFICATION_URL
         - configMapRef:
             name: order-service-config
+        # Automatically injects ORDER_DB_DSN connection strings
         - secretRef:
             name: order-service-secret
