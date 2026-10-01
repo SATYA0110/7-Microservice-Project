@@ -9,6 +9,9 @@ metadata:
   namespace: {{ .Values.namespace | default .Release.Namespace }}
   labels:
     app: platform-services
+  annotations:
+    # 🟢 Instructs GKE to provision a Google Cloud HTTP(S) Load Balancer
+    kubernetes.io/ingress.class: "gce"
 spec:
   rules:
     - http:
