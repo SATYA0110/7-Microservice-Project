@@ -16,14 +16,13 @@ spec:
         app: auth-service
       annotations:
         prometheus.io/scrape: "true"
-        prometheus.io/port: "{{ .Values.authService.port }}"
+        prometheus.io/port: "8081"
         prometheus.io/path: "/metrics"
     spec:
       securityContext:
         runAsNonRoot: true
         runAsUser: 65532
         fsGroup: 65532
-      serviceAccountName: gar-puller-sa
       containers:
       - name: auth-service
         image: {{ .Values.authService.image }}
@@ -35,32 +34,45 @@ spec:
             - ALL
         ports:
         - name: http
-          containerPort: {{ .Values.authService.port }}
+          containerPort: 8081  # Fixed to match application.properties
         resources:
           requests:
-            cpu: 50m
+            cpu: 100m
             memory: 128Mi
           limits:
-            cpu: 100m
+            cpu: 500m
             memory: 512Mi
         livenessProbe:
           httpGet:
-            path: /healthz
-            port: {{ .Values.authService.port }}
+            path: /health      # Fixed to match AuthController GetMapping
+            port: 8081         # Fixed runtime port
           initialDelaySeconds: 20
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 3
         readinessProbe:
           httpGet:
-            path: /readyz
-            port: {{ .Values.authService.port }}
+            path: /health      # Fixed to match AuthController GetMapping
+            port: 8081         # Fixed runtime port
           initialDelaySeconds: 10
           periodSeconds: 5
           timeoutSeconds: 3
           failureThreshold: 3
+        env:
+        # Construct the exact URL Spring Boot expects using ConfigMap variables
+        - name: AUTH_DB_URL
+          value: "jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
+        # Map user credentials from your secretRef to the precise keys your code expects
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: auth-service-secret
+              key: dbUser
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: auth-service-secret
+              key: dbPassword
         envFrom:
         - configMapRef:
             name: auth-service-config
-        - secretRef:
-            name: auth-service-secret
