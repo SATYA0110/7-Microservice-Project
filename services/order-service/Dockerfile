@@ -1,26 +1,26 @@
-FROM python:3.11-alpine AS build
-WORKDIR /app
-RUN apk add --no-cache build-base libffi-dev postgresql-dev
-COPY requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+# Stage 1: Build the C# application
+FROM ://microsoft.com AS build
+WORKDIR /source
 
-FROM python:3.11-alpine
-WORKDIR /app
+# Copy csproj and restore dependencies
+COPY payment-service.csproj .
+RUN dotnet restore
 
-# Fixed the typo "addgoup" to "addgroup"
-RUN addgroup -g 10006 orderuser && adduser -u 10006 -G orderuser -D -S orderuser
-
-# Fixed the typo "oderuser" to "orderuser"
-COPY --from=build /root/.local /home/orderuser/.local
-# Fixed "COPY .." to explicitly copy files to the current working directory
+# Copy the remaining source code and publish
 COPY . .
+RUN dotnet publish -c Release -o /app --no-restore
 
-ENV PATH=/home/orderuser/.local/bin:$PATH
-ENV PYTHONUNBUFFERED=1
+# Stage 2: Build the production runtime image
+FROM ://microsoft.com
+WORKDIR /app
+COPY --from=build /app .
 
-RUN chown -R orderuser:orderuser /app
-USER orderuser
+# Configure a secure non-root user
+RUN addgroup -g 10007 paymentuser && adduser -u 10007 -G paymentuser -D -S paymentuser
+RUN chown -R paymentuser:paymentuser /app
+USER paymentuser
 
-EXPOSE 8080
-# Make sure your main.py file invokes uvicorn on port 8080
-CMD ["python", "main.py"]
+# Match the explicit port defined in the C# Program.cs file (8085)
+EXPOSE 8085
+
+CMD ["dotnet", "payment-service.dll"]
